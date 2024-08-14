@@ -1,28 +1,37 @@
 'use client';
 import  GameStore  from "./stores/gameStore";
+import GameBoard from "./components/gameboard";
 import getGameBoard from "./functions/neo4j";
-import { useLocalObservable } from "mobx-react-lite";
-import { useEffect } from "react";
+import { useLocalObservable, Observer } from "mobx-react-lite";
+import { useEffect, useState } from "react";
 
 
 
 export default function Home() {
-  
+  const [loading, setLoading] = useState(true);
   const store = useLocalObservable(() => new GameStore());
   
+  useEffect(() => {
+  store.init();
+  },[]);
+ 
+
   useEffect(() => {
     async function fetchData() {
       const swag = await getGameBoard();
       console.log(swag);
       store.setGameBoard(swag);
+      console.log(store)
       store.setBigConnection(swag.bigConnection);
+      store.setPlayers(swag.players);
+
 
       const bigConnection = swag.bigConnection;
       const bigConnectionMap = {};
       const otherConnectionsMap = {};
-
+      console.log(swag.players)
       // Create mappings for bigConnection and other connections
-      store.players.forEach(player => {
+      swag.players.forEach(player => {
         let hasBigConnection = false;
         player.Connections.forEach(connection => {
           if (connection === bigConnection) {
@@ -44,38 +53,28 @@ export default function Home() {
           // Add any additional logic here if needed
         }
       });
+      store.setBigConnectionMap(bigConnectionMap);
+      store.setOtherConnectionsMap(otherConnectionsMap);
+      setLoading(false);
     }
 
     fetchData();
   }, [store]);
 
   return (
-    // <div className="grid grid-cols-4 gap-4 justify-center items-center">
-    //   <div className="col-span-2 big-connection-column">
-    //     <h2 className="text-center">{bigConnection}</h2>
-    //     <div className="players-row flex flex-wrap justify-center">
-    //       {bigConnectionMap[bigConnection]?.map(player => (
-    //         <div key={`${player.name}-2`} className="player m-2">
-    //           <h1>{player.name}</h1>
-    //         </div>
-    //       ))}
-    //     </div>
-    //   </div>
-    //   <div className="col-span-2 other-connections-column">
-    //     {Object.keys(otherConnectionsMap).map(connection => (
-    //       <div key={connection} className="connection-group mb-4">
-    //         <h2 className="text-center">{connection}</h2>
-    //         <div className="players-row flex flex-wrap justify-center">
-    //           {otherConnectionsMap[connection].map(player => (
-    //             <div key={`${player.name}-2`} className="player m-2">
-    //               <h1>{player.name}</h1>
-    //             </div>
-    //           ))}
-    //         </div>
-    //       </div>
-    //     ))}
-    //   </div>
-    // </div>
-    <div>asdasdad</div>
+  
+      <Observer>
+         {() => (
+        <div>
+          {loading ? (
+            <div>Loading...</div> 
+          ) : (
+            <div className='flex items-center justify-evenly'>
+              <GameBoard store={store} />
+            </div>
+          )}
+        </div>
+      )}
+      </Observer>
   );
 }

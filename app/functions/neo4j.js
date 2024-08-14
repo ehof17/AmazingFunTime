@@ -65,7 +65,7 @@ export default async function getGameBoard() {
       const res = await session.run(swagQuery)
       for (const element of res.records) {
         if(element.get('PrimaryConnection').properties.name == 'Won Olympic Gold') {
-        console.log(`Big Connection: ${element.get('PrimaryConnection').properties.name}`);
+       // console.log(`Big Connection: ${element.get('PrimaryConnection').properties.name}`);
         let used_els= [];
         const players = element.get('players');
         for (const player of players) {
@@ -73,7 +73,7 @@ export default async function getGameBoard() {
               name: player.properties.name,
               Connections: [element.get('PrimaryConnection').properties.name]
           };
-            console.log(player.properties.name);
+            //console.log(player.properties.name);
             const otherConnections = await session.run(
                 `MATCH (p:Player {name: $name})-[:MEMBER_OF]->(c:Connection) RETURN c`, 
                 { name: player.properties.name }
@@ -84,7 +84,7 @@ export default async function getGameBoard() {
                 const connectionName = record.get('c').properties.name;
                 if (connectionName !== element.get('PrimaryConnection').properties.name && !used_els.includes(connectionName)) {
                     used_els.push(connectionName);
-                    console.log(`\t${connectionName}`);
+                  //  console.log(`\t${connectionName}`);
                     const otherConnections2 = await session.run(
                       `MATCH (p:Player )-[:MEMBER_OF]->(c:Connection {name: $name})
                       WHERE p.name <> $playerNotToGet
@@ -96,7 +96,7 @@ export default async function getGameBoard() {
                           name: record.get('p').properties.name,
                           Connections: [connectionName]
                         })
-                        console.log(`\t\t${record.get('p').properties.name}`);
+                      //  console.log(`\t\t${record.get('p').properties.name}`);
                       }
                      
                   
@@ -108,7 +108,7 @@ export default async function getGameBoard() {
      
     }
   }
-    console.log(gameBoard)
+    //console.log(gameBoard)
     return gameBoard;
 
 

@@ -3,6 +3,7 @@ import { act } from 'react';
 import { makeAutoObservable, action, toJS, set } from "mobx";
 import { match } from 'assert';
 import next from 'next';
+import  getGameBoard  from '../functions/neo4j';
 
 class GameStore{
     constructor(){
@@ -32,6 +33,9 @@ class GameStore{
 
     setPlayers = (players) => {
         this.players = players;
+    }
+    async init(){
+      this.gameBoard = await getGameBoard();
     }
 }
 export default GameStore;
